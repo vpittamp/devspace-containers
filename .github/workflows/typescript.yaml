@@ -25,10 +25,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - tag: 20-alpine
+          - tag: 20
+          - tag: 20-alpine  # Keep Alpine for those who need smaller images
+          # - tag: 18
           # - tag: 18-alpine
-          # - tag: 17-alpine
-          # - tag: 16-alpine
 
     steps:
       - uses: actions/checkout@v4

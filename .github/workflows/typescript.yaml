@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_REPO: loft-sh/devspace-containers/typescript
+  IMAGE_REPO: vpittamp/devspace-containers/typescript
 
 defaults:
   run:

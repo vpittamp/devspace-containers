@@ -15,7 +15,7 @@ echo "Detected OS: $OS_TYPE"
 # Install base dependencies based on OS
 if [ "$OS_TYPE" = "alpine" ]; then
     apk add --no-cache \
-        curl vim wget bash iputils bind-tools git nodejs-lts npm openssl \
+        curl vim wget bash iputils bind-tools git nodejs npm openssl \
         jq sudo ca-certificates gnupg unzip gzip tar bash-completion \
         python3 py3-pip docker-cli docker-compose
 else

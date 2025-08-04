@@ -1,9 +1,7 @@
 ARG  TAG=20-alpine
 FROM node:${TAG}
 
-# Trigger workflow
-
 # Set working directory
 WORKDIR /app
 
-RUN npm install -g typescript tsc-watch
+# TypeScript and tsc-watch are installed via install_tooling.sh

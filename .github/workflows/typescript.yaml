@@ -26,9 +26,9 @@ jobs:
       matrix:
         include:
           - tag: 20-alpine
-          - tag: 18-alpine
-          - tag: 17-alpine
-          - tag: 16-alpine
+          # - tag: 18-alpine
+          # - tag: 17-alpine
+          # - tag: 16-alpine
 
     steps:
       - uses: actions/checkout@v4

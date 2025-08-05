@@ -59,6 +59,11 @@ This is how you can work with it:
 - Files will be synchronized between your local machine and this container
 - Some ports will be forwarded, so you can access this container via localhost
 - Run \`${COLOR_GREEN}npm start${COLOR_RESET}\` to start the application
+
+Docker-outside-of-Docker is enabled:
+- You can use docker commands inside this container
+- Docker commands will run on the host's Docker daemon
+- Run \`${COLOR_GREEN}docker version${COLOR_RESET}\` to verify Docker access
 "
 
 # Set terminal prompt

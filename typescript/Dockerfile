@@ -9,3 +9,6 @@ RUN groupadd -f docker && \
     usermod -aG docker node || true
 
 # TypeScript and tsc-watch are installed via install_tooling.sh
+
+# Switch to root user for development
+USER root

@@ -10,7 +10,7 @@ RUN groupadd -f docker && \
 
 # TypeScript and tsc-watch are installed via install_tooling.sh
 
-# Copy bash configuration for persistent history
+# Copy bash configuration for persistent history across sessions
 COPY .bashrc /root/.bashrc
 
 # Create bash history file with proper permissions

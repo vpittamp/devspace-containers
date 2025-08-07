@@ -13,7 +13,7 @@ RUN groupadd -f docker && \
 # Copy bash configuration for persistent history across sessions
 COPY .bashrc /root/.bashrc
 
-# Create bash history file with proper permissions
+# Create bash history file with proper permissions for persistence
 RUN touch /app/.bash_history && chmod 666 /app/.bash_history
 
 # Switch to root user for development

@@ -17,11 +17,12 @@ if [ "$OS_TYPE" = "alpine" ]; then
     apk add --no-cache \
         curl vim wget bash iputils bind-tools git nodejs npm openssl \
         jq sudo ca-certificates gnupg unzip gzip tar bash-completion \
+        xz tmux \
         python3 py3-pip docker-cli docker-compose
 else
     apt-get update && apt-get -y install \
         curl vim wget bash inetutils-ping dnsutils git openssl \
-        jq sudo ca-certificates gnupg lsb-release unzip gzip tar bash-completion \
+        jq sudo ca-certificates gnupg lsb-release unzip gzip tar xz-utils tmux bash-completion \
         python3 python3-pip docker.io docker-compose
     
     # Install Node.js for Debian-based systems
@@ -30,6 +31,85 @@ else
     apt-get install -y nodejs
     rm nodesource_setup.sh
 fi
+
+# Install Nix (single-user) and configure shell integration
+echo "Installing and configuring Nix (single-user) if missing..."
+
+# Determine target user for Nix install
+TARGET_USER=""
+if [ "$(id -u)" -ne 0 ]; then
+  TARGET_USER="$(id -un)"
+else
+  for u in node vscode dev user; do
+    if id -u "$u" >/dev/null 2>&1; then TARGET_USER="$u"; break; fi
+  done
+  if [ -z "$TARGET_USER" ]; then
+    if [ "$OS_TYPE" = "alpine" ]; then
+      adduser -D -s /bin/sh nixuser || true
+    else
+      useradd -m -s /bin/bash nixuser || true
+    fi
+    TARGET_USER="nixuser"
+  fi
+fi
+
+TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+
+if [ ! -x "$TARGET_HOME/.nix-profile/bin/nix-env" ]; then
+  echo "Installing Nix for user $TARGET_USER..."
+  if [ "$(id -u)" -eq 0 ]; then
+    su - "$TARGET_USER" -c "curl -L https://nixos.org/nix/install | sh -s -- --no-daemon" || true
+  else
+    curl -L https://nixos.org/nix/install | sh -s -- --no-daemon || true
+  fi
+else
+  echo "Nix already present for $TARGET_USER, skipping install."
+fi
+
+# Make Nix available in all shells
+mkdir -p /etc/profile.d
+cat >/etc/profile.d/nix.sh <<EOF
+# Make Nix available in shells (installed for $TARGET_USER)
+if [ -e "$TARGET_HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+  . "$TARGET_HOME/.nix-profile/etc/profile.d/nix.sh"
+fi
+EOF
+chmod 0644 /etc/profile.d/nix.sh
+
+# Configure nix.conf for container use
+mkdir -p /etc/nix
+if [ ! -f /etc/nix/nix.conf ]; then
+  cat >/etc/nix/nix.conf <<'EOF'
+experimental-features = nix-command flakes
+auto-optimise-store = true
+warn-dirty = false
+EOF
+fi
+
+# Add nixpkgs channel and update (target user)
+if [ "$(id -u)" -eq 0 ]; then
+  su - "$TARGET_USER" -c 'nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update' || true
+else
+  nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs || true
+  nix-channel --update || true
+fi
+
+# Auto-enter nix-shell on interactive terminals when a shell.nix is present
+cat >/etc/profile.d/auto-nix-shell.sh <<'EOF'
+# Enter repo nix-shell automatically for interactive shells
+if [ -t 1 ] && [ -z "${INSIDE_NIX_SHELL-}" ] && [ "${DISABLE_NIX_SHELL_AUTOSTART-}" != "1" ]; then
+  for dir in /workspace /workspaces/* /app "$HOME/workspace" "$PWD"; do
+    if [ -d "$dir" ] && [ -f "$dir/shell.nix" ]; then
+      cd "$dir" 2>/dev/null || true
+      if command -v nix-shell >/dev/null 2>&1; then
+        exec nix-shell
+      fi
+      break
+    fi
+  done
+fi
+EOF
+chmod 0644 /etc/profile.d/auto-nix-shell.sh
 
 # Create directories
 mkdir -p /usr/local/bin

@@ -17,4 +17,4 @@ COPY .bashrc /root/.bashrc
 RUN touch /app/.bash_history && chmod 666 /app/.bash_history
 
 # Switch to root user for development
-USER root
+# USER root

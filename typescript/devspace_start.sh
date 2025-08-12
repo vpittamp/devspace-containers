@@ -74,4 +74,4 @@ if [ -z "$BASH" ]; then export PS1="$ "; fi
 export PATH="./bin:$PATH"
 
 # Open shell with bash history persistence
-bash
+bash 

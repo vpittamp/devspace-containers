@@ -5,14 +5,3 @@ dev:
     imageSelector: image
     ports:
       - port: 9229
-    sync:
-      - path: ./:/app
-        excludePaths:
-          - node_modules
-          - .git
-    persistPaths:
-      - path: /app/node_modules
-    # Docker-outside-of-Docker configuration
-    mounts:
-      - source: /var/run/docker.sock
-        target: /var/run/docker.sock
